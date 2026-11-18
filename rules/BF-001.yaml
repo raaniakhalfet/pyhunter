@@ -1,0 +1,21 @@
+- id: BF-001
+  titre: Brute force SSH
+  description: >
+    Nombre élevé d'échecs d'authentification SSH depuis une même adresse IP
+    sur une courte fenêtre de temps (attaque par dictionnaire type hydra).
+  source: auth.log
+  condition: echecs_auth >= 10
+  fenetre: 60s
+  severite: haute
+  attack: [T1110.001, T1021.004]
+  kill_chain: exploitation
+  groupe_par: [src_ip]
+  filtre: {service: ssh}
+  ioc: [src_ip]
+  faux_positifs: >
+    Utilisateur ayant oublié son mot de passe, script ou outil d'automatisation
+    mal configuré (clé expirée), supervision qui teste la connexion SSH.
+  reponse: >
+    Bloquer l'IP source (pare-feu / fail2ban), vérifier toute connexion réussie
+    depuis cette IP, réinitialiser les mots de passe des comptes visés, imposer
+    l'authentification par clé et désactiver la connexion root par SSH.

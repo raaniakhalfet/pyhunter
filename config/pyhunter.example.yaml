@@ -1,0 +1,23 @@
+# Copiez ce fichier en ./pyhunter.yaml et adaptez-le.
+# La clé VirusTotal ne va JAMAIS ici : exportez-la dans une variable d'environnement
+#   Linux/macOS : export VT_API_KEY="..."
+#   PowerShell  : $env:VT_API_KEY = "..."
+
+regles:
+  - rules
+
+virustotal:
+  cle_api_env: VT_API_KEY
+  cache: .pyhunter/cache.sqlite
+  ttl: 7d                 # durée de validité d'une réponse en cache
+  intervalle_min: 15s     # API publique gratuite : 4 requêtes / minute
+  timeout: 10s
+  tentatives: 3
+  enrichir_ip_privees: false
+
+syslog:
+  annee: 2026             # les lignes syslog classiques n'ont pas d'année
+  fuseau: UTC             # fuseau de la machine analysée, ex. Africa/Tunis
+
+correlation:
+  horizon_succes: 30m     # délai max entre la fin d'un brute force et une connexion réussie

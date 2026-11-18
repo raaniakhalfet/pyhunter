@@ -1,0 +1,19 @@
+- id: BF-003
+  titre: Password spraying (nombreux comptes visés)
+  description: >
+    Une même source échoue à s'authentifier sur de nombreux comptes différents :
+    peu d'essais par compte pour éviter le verrouillage, mais beaucoup de comptes.
+  source: [auth.log, evtx]
+  condition: utilisateurs_distincts >= 8
+  fenetre: 10m
+  severite: haute
+  attack: T1110.003
+  kill_chain: exploitation
+  groupe_par: [src_ip]
+  ioc: [src_ip]
+  faux_positifs: >
+    Serveur de rebond ou proxy partagé derrière lequel plusieurs utilisateurs
+    légitimes se trompent de mot de passe.
+  reponse: >
+    Bloquer l'IP source, lister les comptes visés et vérifier qu'aucun ne s'est
+    connecté avec succès depuis cette IP, renforcer la politique de mots de passe / MFA.

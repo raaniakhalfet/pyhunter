@@ -1,0 +1,24 @@
+- id: DNS-001
+  titre: Requêtes DNS suspectes (entropie élevée, tunnel / exfiltration)
+  description: >
+    Un hôte interne émet de nombreuses requêtes DNS dont le sous-domaine est
+    long et aléatoire (entropie de Shannon élevée) vers un même domaine :
+    typique d'un tunnel DNS (iodine, dnscat2) ou d'une exfiltration encodée.
+  source: pcap
+  condition: entropie_dns >= 3.5 et longueur_sous_domaine >= 20
+  occurrences_min: 10
+  fenetre: 5m
+  severite: haute
+  attack: T1071.004
+  kill_chain: commande_controle
+  groupe_par: [src_ip, base_domain]
+  ioc: [base_domain]
+  exclure:
+    base_domain: [akamaiedge.net, cloudfront.net, amazonaws.com, googlevideo.com, 1e100.net]
+  faux_positifs: >
+    CDN et services anti-spam / antivirus qui encodent des hachages dans les
+    noms DNS. Ajouter les domaines légitimes à la liste « exclure ».
+  reponse: >
+    Isoler l'hôte source, bloquer le domaine au niveau du résolveur DNS,
+    rechercher le processus à l'origine des requêtes et évaluer les données
+    potentiellement exfiltrées.

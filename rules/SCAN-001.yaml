@@ -1,0 +1,21 @@
+- id: SCAN-001
+  titre: Scan de ports TCP (SYN)
+  description: >
+    Une même source envoie des SYN vers un grand nombre de ports différents
+    d'une même cible en peu de temps, sans établir de connexion : signature
+    d'un scan de type nmap -sS.
+  source: pcap
+  condition: ports_distincts >= 20
+  fenetre: 10s
+  severite: moyenne
+  attack: T1046
+  kill_chain: reconnaissance
+  groupe_par: [src_ip, dst_ip]
+  ioc: [src_ip]
+  faux_positifs: >
+    Scanner de vulnérabilités autorisé (Nessus, OpenVAS), outil d'inventaire
+    réseau, supervision. Vérifier la liste des scanners déclarés.
+  reponse: >
+    Identifier l'hôte source ; si non autorisé, bloquer l'IP au pare-feu,
+    vérifier les ports trouvés ouverts (SYN-ACK) et surveiller les tentatives
+    d'accès qui suivent depuis la même source.

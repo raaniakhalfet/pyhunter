@@ -1,0 +1,20 @@
+- id: BF-002
+  titre: Brute force RDP / authentification Windows
+  description: >
+    Rafale d'échecs d'ouverture de session Windows (événement 4625) en RDP ou
+    en réseau depuis une même adresse IP.
+  source: evtx
+  condition: echecs_auth >= 10
+  fenetre: 60s
+  severite: haute
+  attack: [T1110.001, T1021.001]
+  kill_chain: exploitation
+  groupe_par: [src_ip]
+  filtre: {service: [rdp, reseau]}
+  ioc: [src_ip]
+  faux_positifs: >
+    Session RDP enregistrée avec un ancien mot de passe, service ou tâche
+    planifiée utilisant un compte dont le mot de passe a changé.
+  reponse: >
+    Bloquer l'IP source, vérifier les événements 4624 depuis cette IP, contrôler
+    le verrouillage des comptes visés, restreindre RDP (NLA, VPN, liste blanche).

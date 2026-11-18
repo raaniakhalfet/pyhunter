@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PyHunter — Rapport d'analyse</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #ffffff; --ink: #1c2330; --muted: #5f6b7a; --line: #e2e6eb;
+    --critique: #8e1b2c; --haute: #c2410c; --moyenne: #b7791f; --faible: #2f6f4f; --accent: #1f4e79;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 14px/1.55 "Segoe UI", system-ui, -apple-system, Roboto, sans-serif; }
+  header { background: #142233; color: #fff; padding: 28px 40px; }
+  header h1 { margin: 0 0 4px; font-size: 24px; letter-spacing: .3px; }
+  header p { margin: 0; color: #b9c4d0; }
+  main { max-width: 1180px; margin: 0 auto; padding: 28px 40px 60px; }
+  h2 { font-size: 17px; margin: 36px 0 12px; padding-bottom: 6px; border-bottom: 2px solid var(--line); }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+  .card .n { font-size: 26px; font-weight: 650; }
+  .card .l { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .5px; }
+  table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--line);
+          border-radius: 8px; overflow: hidden; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: #eef1f4; font-size: 12px; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); }
+  tr:last-child td { border-bottom: none; }
+  code, .mono { font-family: Consolas, "SFMono-Regular", Menlo, monospace; font-size: 12.5px; }
+  .badge { display: inline-block; padding: 2px 9px; border-radius: 999px; color: #fff; font-size: 12px; font-weight: 600; }
+  .sev-critique { background: var(--critique); } .sev-haute { background: var(--haute); }
+  .sev-moyenne { background: var(--moyenne); } .sev-faible { background: var(--faible); }
+  .alert { background: var(--card); border: 1px solid var(--line); border-left: 5px solid var(--muted);
+           border-radius: 8px; padding: 16px 20px; margin: 14px 0; }
+  .alert.b-critique { border-left-color: var(--critique); } .alert.b-haute { border-left-color: var(--haute); }
+  .alert.b-moyenne { border-left-color: var(--moyenne); } .alert.b-faible { border-left-color: var(--faible); }
+  .alert h3 { margin: 0 0 6px; font-size: 16px; }
+  .meta { color: var(--muted); font-size: 13px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 24px; margin: 10px 0; }
+  .kv b { color: var(--muted); font-weight: 600; }
+  .note { background: #fff4e5; border: 1px solid #f3d19c; border-radius: 6px; padding: 8px 12px; margin: 6px 0; }
+  .note.crit { background: #fdecee; border-color: #f0b4bd; }
+  details { margin-top: 10px; } summary { cursor: pointer; color: var(--accent); font-weight: 600; }
+  pre { background: #0f1722; color: #d6e2ee; padding: 10px 12px; border-radius: 6px; overflow-x: auto;
+        font-size: 12px; white-space: pre-wrap; word-break: break-all; }
+  .timeline { position: relative; margin-left: 10px; padding-left: 22px; border-left: 2px solid var(--line); }
+  .tl { position: relative; margin: 0 0 14px; }
+  .tl::before { content: ""; position: absolute; left: -29px; top: 5px; width: 12px; height: 12px;
+                border-radius: 50%; background: var(--muted); border: 2px solid var(--bg); }
+  .tl.sev-c::before { background: var(--critique); } .tl.sev-h::before { background: var(--haute); }
+  .tl.sev-m::before { background: var(--moyenne); } .tl.sev-f::before { background: var(--faible); }
+  .empty { color: var(--muted); font-style: italic; }
+  a { color: var(--accent); }
+  footer { color: var(--muted); font-size: 12px; margin-top: 40px; }
+  @media print { header { background: #fff; color: #000; } .alert, table { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>PyHunter — Rapport d'analyse</h1>
+  <p>Généré le {{ r.genere_le | ts }} UTC · {{ r.outil.nom }} {{ r.outil.version }} ·
+     enrichissement : {{ r.mode_enrichissement | replace("_", " ") }}</p>
+</header>
+<main>
+
+<h2>Synthèse</h2>
+<div class="cards">
+  <div class="card"><div class="n">{{ r.synthese.alertes }}</div><div class="l">Alertes</div></div>
+  {% for sev, n in r.synthese.par_severite.items() %}
+  <div class="card"><div class="n">{{ n }}</div><div class="l"><span class="badge sev-{{ sev }}">{{ sev }}</span></div></div>
+  {% endfor %}
+  <div class="card"><div class="n">{{ r.synthese.compromissions }}</div><div class="l">Compromissions probables</div></div>
+  <div class="card"><div class="n">{{ r.synthese.ioc }}</div><div class="l">IOC</div></div>
+  <div class="card"><div class="n">{{ r.synthese.evenements_normalises }}</div><div class="l">Événements analysés</div></div>
+</div>
+{% if r.synthese.periode %}
+<p class="meta">Activité malveillante observée du {{ r.synthese.periode.debut | ts }} au {{ r.synthese.periode.fin | ts }} (UTC).</p>
+{% endif %}
+
+<h2>Chronologie de l'attaque</h2>
+{% if r.alertes %}
+<div class="timeline">
+  {% for a in r.alertes %}
+  <div class="tl sev-{{ a.severite[0] }}">
+    <span class="mono">{{ a.debut | ts }}</span> —
+    <span class="badge sev-{{ a.severite }}">{{ a.severite }}</span>
+    <b>{{ a.alert_id }}</b> {{ a.titre }}
+    <span class="meta">· {{ kill_chain_label(a.kill_chain) }} ·
+      {% for k, v in a.groupe.items() %}{{ k }}={{ v }}{% if not loop.last %}, {% endif %}{% endfor %}</span>
+    {% if a.compromission %}<span class="badge sev-critique">compromission</span>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% else %}<p class="empty">Aucune alerte.</p>{% endif %}
+
+{% if r.correlations %}
+<h2>Corrélations (même source, plusieurs phases)</h2>
+<table>
+  <tr><th>Source</th><th>Alertes</th><th>Phases Kill Chain</th><th>Période (UTC)</th><th>Compromission</th></tr>
+  {% for c in r.correlations %}
+  <tr>
+    <td class="mono">{{ c.ioc }}</td>
+    <td>{{ c.alertes | join(", ") }}</td>
+    <td>{% for p in c.phases_kill_chain %}{{ kill_chain_label(p) }}{% if not loop.last %} → {% endif %}{% endfor %}</td>
+    <td class="mono">{{ c.debut | ts }} → {{ c.fin | ts }}</td>
+    <td>{{ "oui" if c.compromission else "non" }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+<h2>Alertes détaillées</h2>
+{% for a in r.alertes %}
+<div class="alert b-{{ a.severite }}" id="{{ a.alert_id }}">
+  <h3>{{ a.alert_id }} · {{ a.titre }} <span class="badge sev-{{ a.severite }}">{{ a.severite }}</span></h3>
+  <div class="meta">Règle {{ a.rule_id }} · {{ kill_chain_label(a.kill_chain) }} ·
+    {% for t in a.attack %}{% set tech = technique(t) %}<a href="{{ tech.lien }}">{{ t }}</a> {{ tech.nom }}{% if not loop.last %}, {% endif %}{% endfor %}</div>
+  {% if a.description %}<p>{{ a.description }}</p>{% endif %}
+  <div class="grid2">
+    <div class="kv"><b>Condition :</b> <code>{{ a.condition }}</code> sur {{ a.fenetre_s | int }} s</div>
+    <div class="kv"><b>Valeurs max observées :</b>
+      {% for k, v in a.metriques.items() %}<code>{{ k }} = {{ v }}</code>{% if not loop.last %}, {% endif %}{% endfor %}</div>
+    <div class="kv"><b>Groupe :</b>
+      {% for k, v in a.groupe.items() %}<code>{{ k }}={{ v }}</code>{% if not loop.last %}, {% endif %}{% endfor %}</div>
+    <div class="kv"><b>Période :</b> <span class="mono">{{ a.debut | ts }} → {{ a.fin | ts }}</span>
+      ({{ a.duree_s }} s, {{ a.nb_evenements }} événements)</div>
+  </div>
+  {% for k, obs in a.valeurs_observees.items() %}{% set limit = 8 if k == "query" else 25 %}
+  <div class="kv"><b>{{ k }} ({{ obs.distincts }} distincts) :</b>
+    <span class="mono">{{ obs.valeurs[:limit] | join(", ") }}{% if obs.distincts > limit %} … (+{{ obs.distincts - limit }}){% endif %}</span></div>
+  {% endfor %}
+  {% for n in a.notes %}
+  <div class="note {% if 'compromission' in n or 'RÉUSSIE' in n %}crit{% endif %}">{{ n }}</div>
+  {% endfor %}
+  {% if a.reponse %}<p><b>Réponse recommandée :</b> {{ a.reponse }}</p>{% endif %}
+  {% if a.faux_positifs %}<p class="meta"><b>Faux positifs possibles :</b> {{ a.faux_positifs }}</p>{% endif %}
+  <details>
+    <summary>Preuves ({{ a.preuves | length }} événements, extrait)</summary>
+    <pre>{% for p in a.preuves %}{{ p.ts }}  [{{ p.source }}] {{ p.raw }}{% if p.correlation is defined %}   ← {{ p.correlation }}{% endif %}
+{% endfor %}</pre>
+  </details>
+</div>
+{% else %}<p class="empty">Aucune alerte.</p>{% endfor %}
+
+<h2>Indicateurs de compromission (IOC) et enrichissement</h2>
+{% if r.ioc %}
+<table>
+  <tr><th>Type</th><th>Valeur</th><th>Alertes</th><th>Verdict</th><th>Détail</th></tr>
+  {% for i in r.ioc %}{% set e = i.enrichissement %}
+  <tr>
+    <td>{{ i.type }}</td>
+    <td class="mono">{{ i.valeur }}</td>
+    <td>{{ i.alertes | join(", ") }}</td>
+    <td>{% if e.verdict is defined %}<b>{{ e.verdict | replace("_", " ") }}</b>{% else %}{{ e.statut | default("—") | replace("_", " ") }}{% endif %}</td>
+    <td class="meta">
+      {% if e.verdict is defined and e.malveillant is defined %}
+        {{ e.malveillant }} malveillant / {{ e.suspect }} suspect / {{ e.inoffensif }} inoffensif
+        {% if e.pays is defined %}· {{ e.pays }}{% endif %}{% if e.proprietaire_as is defined %} · {{ e.proprietaire_as }}{% endif %}
+        · <a href="{{ e.lien }}">VirusTotal</a> ({{ e.origine }})
+      {% elif e.detail is defined %}{{ e.detail }}{% if e.lien is defined %} · <a href="{{ e.lien }}">VirusTotal</a>{% endif %}
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}<p class="empty">Aucun IOC.</p>{% endif %}
+
+<h2>Correspondance MITRE ATT&amp;CK</h2>
+{% if r.attack %}
+<table>
+  <tr><th>Technique</th><th>Nom</th><th>Tactique</th><th>Alertes</th></tr>
+  {% for t in r.attack %}
+  <tr><td><a href="{{ t.lien }}" class="mono">{{ t.id }}</a></td><td>{{ t.nom }}</td><td>{{ t.tactique }}</td>
+      <td>{{ t.alertes | join(", ") }}</td></tr>
+  {% endfor %}
+</table>
+{% else %}<p class="empty">Aucune technique observée.</p>{% endif %}
+
+<h2>Sources analysées (intégrité)</h2>
+<table>
+  <tr><th>Type</th><th>Fichier</th><th>SHA-256</th><th>Événements retenus</th></tr>
+  {% for i in r.entrees %}
+  <tr><td>{{ i.type }}</td><td class="mono">{{ i.fichier }}</td><td class="mono">{{ i.sha256 }}</td><td>{{ i.evenements }}</td></tr>
+  {% endfor %}
+</table>
+
+<h2>Règles appliquées</h2>
+<table>
+  <tr><th>ID</th><th>Titre</th><th>Source</th><th>Condition</th><th>Fenêtre</th><th>Sévérité</th><th>ATT&amp;CK</th></tr>
+  {% for rule in r.regles %}
+  <tr><td class="mono">{{ rule.id }}</td><td>{{ rule.titre }}</td><td>{{ rule.source | join(", ") }}</td>
+      <td><code>{{ rule.condition }}</code></td><td>{{ rule.fenetre_s | int }} s</td>
+      <td><span class="badge sev-{{ rule.severite }}">{{ rule.severite }}</span></td><td>{{ rule.attack | join(", ") }}</td></tr>
+  {% endfor %}
+</table>
+
+<footer>Horodatages en UTC. Les preuves sont des extraits ; les fichiers sources complets sont identifiés par leur empreinte SHA-256.</footer>
+</main>
+</body>
+</html>

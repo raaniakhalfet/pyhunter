@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyhunter"
+version = "0.1.0"
+description = "Analyse de PCAP et de journaux (auth.log, EVTX) avec règles YAML, enrichissement VirusTotal et rapport MITRE ATT&CK"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "scapy>=2.5",
+    "PyYAML>=6.0",
+    "Jinja2>=3.1",
+    "tzdata>=2024.1; sys_platform == 'win32'",  # Windows has no system time-zone database
+]
+
+[project.optional-dependencies]
+evtx = ["python-evtx>=0.7"]
+dev = ["pytest>=8", "python-evtx>=0.7"]
+
+[project.scripts]
+pyhunter = "pyhunter.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["pyhunter*"]
+
+[tool.setuptools.package-data]
+"pyhunter.report" = ["templates/*.j2"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Temp files inside the project: avoids pytest's "pytest-current" symlink cleanup in %TEMP%,
+# which fails with PermissionError on some Windows setups.
+addopts = "--basetemp=.pytest_tmp"
